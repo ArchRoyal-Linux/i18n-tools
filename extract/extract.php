@@ -62,7 +62,9 @@ class StringExtractor {
 		$multiple = array();
 		$complete = false;
 		for( $i = 0; $i < count( $rule ); ++$i ) {
-			if ( $rule[$i] && ( !isset( $call['args'][$i] ) || !is_string( $call['args'][$i] ) || '' == $call['args'][$i] ) ) return false;
+			if ( $rule[$i] && $rule[$i] != 'domain' && ( ! isset( $call['args'][$i] ) || ! is_string( $call['args'][$i] ) || '' == $call['args'][$i] ) )
+				return false;
+
 			switch( $rule[$i] ) {
 			case 'string':
 				if ( $complete ) {
@@ -94,7 +96,8 @@ class StringExtractor {
 				}
 				break;
 			case 'domain':
-				$entry->domain = $call['args'][$i];
+				if( isset( $call['args'][$i] ) )
+					$entry->domain = $call['args'][$i];
 				break;
 			}
 		}
