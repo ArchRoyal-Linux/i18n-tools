@@ -6,6 +6,7 @@ class StringExtractor {
 
 	var $rules = array();
 	var $comment_prefix = 'translators:';
+	var $add_empty_domain = true;
 
 	function __construct( $rules = array() ) {
 		$this->rules = $rules;
@@ -128,11 +129,20 @@ class StringExtractor {
 		$function_calls = $this->find_function_calls( array_keys( $this->rules ), $code );
 		foreach( $function_calls as $call ) {
 			$entry = $this->entry_from_call( $call, $file_name );
-			if ( is_array( $entry ) )
+
+			if ( is_array( $entry ) ) {
+				if( $this->add_empty_domain == false && empty( $entry[0]->domain ) )
+					continue;
+
 				foreach( $entry as $single_entry )
 					$translations->add_entry_or_merge( $single_entry );
-			elseif ( $entry)
+			}
+			elseif ( $entry ) {
+				if( $this->add_empty_domain == false && empty( $entry->domain ) )
+					continue;
+
 				$translations->add_entry_or_merge( $entry );
+			}
 		}
 		return $translations;
 	}
