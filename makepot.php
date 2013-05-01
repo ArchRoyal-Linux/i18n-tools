@@ -438,6 +438,8 @@ class MakePOT {
 		$placeholders['name'] = $this->get_addon_header('Plugin Name', $source);
 		$placeholders['slug'] = $slug;
 
+		$this->extractor->add_empty_domain = false;
+
 		$output = is_null($output)? "$slug.pot" : $output;
 		$res = $this->xgettext('wp-plugin', $dir, $output, $placeholders);
 		if (!$res) return false;
