@@ -69,6 +69,7 @@ class StringExtractor {
 		$entry = new Translation_Entry;
 		$multiple = array();
 		$complete = false;
+
 		for( $i = 0; $i < count( $rule ); ++$i ) {
 			if ( $rule[$i] && $rule[$i] != 'domain' && ( ! isset( $call['args'][$i] ) || ! is_string( $call['args'][$i] ) || '' == $call['args'][$i] ) )
 				return false;
@@ -151,6 +152,7 @@ class StringExtractor {
 				$translations->add_entry_or_merge( $entry );
 			}
 		}
+
 		return $translations;
 	}
 
@@ -165,11 +167,17 @@ class StringExtractor {
 		$function_calls = array();
 		$latest_comment = false;
 		$in_func = false;
+
 		foreach( $tokens as $token ) {
 			$id = $text = null;
-			if ( is_array( $token ) ) list( $id, $text, $line ) = $token;
-			if ( T_WHITESPACE == $id ) continue;
-			if ( T_STRING == $id && in_array( $text, $function_names ) && !$in_func ) {
+
+			if ( is_array( $token ) )
+				list( $id, $text, $line ) = $token;
+
+			if ( T_WHITESPACE == $id )
+				continue;
+
+			if ( T_STRING == $id && in_array( $text, $function_names ) && ! $in_func ) {
 				$in_func = true;
 				$paren_level = -1;
 				$args = array();
@@ -179,29 +187,39 @@ class StringExtractor {
 
 				$just_got_into_func = true;
 				$latest_comment = false;
+
 				continue;
 			}
+
 			if ( T_COMMENT == $id ) {
 				$text = trim( preg_replace( '%^/\*|//%', '', preg_replace( '%\*/$%', '', $text ) ) );
+
 				if ( 0 === stripos( $text, $this->comment_prefix ) ) {
 					$latest_comment = $text;
 				}
 			}
-			if ( !$in_func ) continue;
+
+			if ( ! $in_func )
+				continue;
+
 			if ( '(' == $token ) {
 				$paren_level++;
+
 				if ( 0 == $paren_level ) { // start of first argument
 					$just_got_into_func = false;
 					$current_argument = null;
 					$current_argument_is_just_literal = true;
 				}
+
 				continue;
 			}
+
 			if ( $just_got_into_func ) {
 				// there wasn't a opening paren just after the function name -- this means it is not a function
 				$in_func = false;
 				$just_got_into_func = false;
 			}
+
 			if ( ')' == $token ) {
 				if ( 0 == $paren_level ) {
 					$in_func = false;
@@ -210,23 +228,37 @@ class StringExtractor {
 					if ( $func_comment ) $call['comment'] = $func_comment;
 					$function_calls[] = $call;
 				}
+
 				$paren_level--;
+
 				continue;
 			}
+
 			if ( ',' == $token && 0 == $paren_level ) {
 				$args[] = $current_argument;
 				$current_argument = null;
 				$current_argument_is_just_literal = true;
+
 				continue;
 			}
+
 			if ( T_CONSTANT_ENCAPSED_STRING == $id && $current_argument_is_just_literal ) {
 				// we can use eval safely, because we are sure $text is just a string literal
 				eval('$current_argument = '.$text.';' );
+
 				continue;
 			}
+
+			if( T_STRING == $id || T_DOUBLE_COLON == $id  ) {
+				$current_argument .= $text;
+
+				continue;
+			}
+
 			$current_argument_is_just_literal = false;
 			$current_argument = null;
 		}
+
 		return $function_calls;
 	}
 }
