@@ -4,7 +4,7 @@
  * a WordPress extension to a POT file
  *
  * @version $Id$
- * @package wordpress-i18n
+ * @package i18n-tools
  * @subpackage tools
  */
 

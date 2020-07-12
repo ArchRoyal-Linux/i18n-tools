@@ -4,7 +4,7 @@
  * translation, which cannot be gettexted
  *
  * @version $Id$
- * @package wordpress-i18n
+ * @package i18n-tools
  * @subpackage tools
  */
 // see: http://php.net/tokenizer
@@ -230,5 +230,3 @@ if ($included_files[0] == __FILE__) {
 	$not_gettexted = new NotGettexted;
 	$not_gettexted->cli();
 }
-
-?>
