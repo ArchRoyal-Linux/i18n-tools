@@ -13,6 +13,7 @@ class MakePOT {
 
 	var $projects = array(
 		'generic',
+		'ar-installer',
 	);
 
 	var $rules = array(
@@ -82,6 +83,12 @@ class MakePOT {
 		return realpath(dirname($path)).DIRECTORY_SEPARATOR.basename($path);
 	}
 
+	function ar_version($dir) {
+		$version_php = $dir.'/ar-includes/version.php';
+		if ( !is_readable( $version_php ) ) return false;
+		return preg_match( '/\$ar_version\s*=\s*\'(.*?)\';/', file_get_contents( $version_php ), $matches )? $matches[1] : false;
+	}
+
 	function xgettext($project, $dir, $output_file, $placeholders = array(), $excludes = array(), $includes = array()) {
 		$meta = array_merge( $this->meta['default'], $this->meta[$project] );
 		$placeholders = array_merge( $meta, $placeholders );
@@ -129,8 +136,6 @@ class MakePOT {
 		$placeholders = array();
 		if ( $ar_version = $this->ar_version( $dir ) )
 			$placeholders['version'] = $ar_version;
-		else
-			return false;
 		$output = is_null( $output )? $default_output : $output;
 		$res = $this->xgettext( $project, $dir, $output, $placeholders, $excludes, $includes );
 		if ( !$res ) return false;
@@ -156,8 +161,6 @@ class MakePOT {
 		return $this->ar_generic( $dir, array(
 			'project' => 'ar-installer',
 			'output' => $output,
-			'extract_not_gettexted' => true,
-        	'not_gettexted_files_filter' => array( &$this, 'is_not_ms_file' ),
 		) );
 	}
 
