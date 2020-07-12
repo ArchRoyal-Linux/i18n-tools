@@ -55,6 +55,12 @@ class MakePOT {
 			'comments' => "Copyright (C) {year} {package-name}\nThis file is distributed under the same license as the {package-name} package.",
 		),
 		'generic' => array(),
+		'ar-installer' => array(
+			'description' => 'Translation of strings in ArchRoyal installer {version}',
+			'copyright-holder' => 'ArchRoyal-Linux',
+			'package-name' => 'ArchRoyal-Linux',
+			'package-version' => '{version}',
+		),
 	);
 
 	function __construct($deprecated = true) {
@@ -145,6 +151,15 @@ class MakePOT {
 		return $res;
 	}
 
+	function ar_installer($dir, $output) {
+		$output = is_null( $output )? 'installer.pot' : $output;
+		return $this->ar_generic( $dir, array(
+			'project' => 'ar-installer',
+			'output' => $output,
+			'extract_not_gettexted' => true,
+        	'not_gettexted_files_filter' => array( &$this, 'is_not_ms_file' ),
+		) );
+	}
 
 	function is_ms_file( $file_name ) {
 		$is_ms_file = false;
